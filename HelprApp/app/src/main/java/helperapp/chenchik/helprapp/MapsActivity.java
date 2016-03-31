@@ -56,6 +56,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     MediaPlayer mp;
     int currentSound = 0;
     int myLength;
+    boolean foundOnce = false;
 
     //int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
     private static final int MY_PERMISSIONS_ACCESS_FINE_LOCATION = 1;
@@ -198,7 +199,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             //if(loc == null) {
             //mMap.moveCamera(CameraUpdateFactory.newLatLng(brooks));
             mMap.setMyLocationEnabled(true);
-            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 17.0f));
+            //mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 17.0f));
             //}else {
             //mMap.animateCamera(CameraUpdateFactory.newLatLng(currentLatLng));
             //}
@@ -271,7 +272,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onLocationChanged(Location location) {
         Log.v("CLASS GPS", location.getLatitude() + ", " + location.getLongitude());
+        loc = location;
 
+        //this if statement for not constantly animating camera to new position
+        if(!foundOnce){
+            LatLng tmpLL = new LatLng(loc.getLatitude(), loc.getLongitude());
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(tmpLL, 17.0f));
+            foundOnce = true;
+        }
         //loc = location;
 
         if ((location.getLatitude() >= brooksBottomLat && location.getLatitude() <= brooksTopLat) &&
@@ -375,9 +383,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }*/
 
     public void makeNewListing(View v){
-        Log.v("its", "workingggggg");
+        //Log.v("its", "workingggggg");
         Intent x = new Intent(this, NewListingActivity.class);
         //Intent x = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.unc.edu") );
+
+        x.putExtra("currentLocation", loc);
         startActivity(x);
 
 
