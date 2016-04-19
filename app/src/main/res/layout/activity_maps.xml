@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="match_parent"
+    tools:context="helperapp.chenchik.helprapp.MapsActivity"
+    android:paddingLeft="0dp"
+    android:paddingRight="0dp"
+    android:orientation="vertical">
+
+
+
+    <fragment xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:map="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/map"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_width="wrap_content"
+        android:layout_height="350dp"
+        tools:context="helperapp.chenchik.helprapp.MapsActivity"/>
+
+    <GridLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/map"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:id="@+id/gridLayout"
+        android:rowCount="2"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true">
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:text="New Listing"
+            android:id="@+id/newListing"
+            android:layout_row="0"
+            android:layout_column="0"
+            android:layout_columnSpan="4"
+            android:textColor="#ffffff"
+            android:backgroundTint="#2da3f1"
+            android:onClick="makeNewListing"
+            android:layout_rowSpan="1" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Show Listings"
+            android:id="@+id/showListing"
+            android:layout_row="0"
+            android:layout_column="4"
+            android:onClick="showListings"
+            android:layout_alignBottom="@+id/gridLayout"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:backgroundTint="#fecf42"
+            android:textColor="#ffffff" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/theImageView"
+            android:layout_row="0"
+            android:layout_column="5" />
+
+    </GridLayout>
+
+    <ImageView
+        android:layout_width="101dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/photo"
+        android:layout_gravity="top"
+        android:backgroundTint="#bababa"
+        android:layout_row="0"
+        android:layout_column="6"
+        android:background="@drawable/solid_gray"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/gridLayout"
+        android:layout_marginLeft="5dp"
+        android:layout_marginBottom="5dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Title:"
+        android:id="@+id/titleText"
+        android:layout_alignTop="@+id/photo"
+        android:layout_toRightOf="@+id/photo"
+        android:layout_toEndOf="@+id/photo"
+        android:layout_marginLeft="10dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Name:"
+        android:id="@+id/nameText"
+        android:layout_below="@+id/titleText"
+        android:layout_toRightOf="@+id/photo"
+        android:layout_toEndOf="@+id/photo"
+        android:layout_marginLeft="10dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Phone:"
+        android:id="@+id/phoneText"
+        android:layout_below="@+id/nameText"
+        android:layout_toRightOf="@+id/photo"
+        android:layout_toEndOf="@+id/photo"
+        android:layout_marginLeft="10dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Price:"
+        android:id="@+id/priceText"
+        android:layout_below="@+id/phoneText"
+        android:layout_toRightOf="@+id/photo"
+        android:layout_toEndOf="@+id/photo"
+        android:layout_marginLeft="10dp" />
+
+
+</RelativeLayout>
