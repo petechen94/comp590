@@ -16,7 +16,7 @@
         android:id="@+id/map"
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="wrap_content"
-        android:layout_height="350dp"
+        android:layout_height="300dp"
         tools:context="helperapp.chenchik.helprapp.MapsActivity"/>
 
     <GridLayout
@@ -30,39 +30,12 @@
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true">
 
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="50dp"
-            android:text="New Listing"
-            android:id="@+id/newListing"
-            android:layout_row="0"
-            android:layout_column="0"
-            android:layout_columnSpan="4"
-            android:textColor="#ffffff"
-            android:backgroundTint="#2da3f1"
-            android:onClick="makeNewListing"
-            android:layout_rowSpan="1" />
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Show Listings"
-            android:id="@+id/showListing"
-            android:layout_row="0"
-            android:layout_column="4"
-            android:onClick="showListings"
-            android:layout_alignBottom="@+id/gridLayout"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:backgroundTint="#fecf42"
-            android:textColor="#ffffff" />
-
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/theImageView"
             android:layout_row="0"
-            android:layout_column="5" />
+            android:layout_column="7" />
 
     </GridLayout>
 
@@ -77,49 +50,126 @@
         android:background="@drawable/solid_gray"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:layout_below="@+id/gridLayout"
-        android:layout_marginLeft="5dp"
-        android:layout_marginBottom="5dp" />
+        android:layout_below="@+id/map"
+        android:layout_above="@+id/titleText"
+        android:layout_marginTop="5dp"
+        android:layout_marginLeft="5dp" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Title:"
         android:id="@+id/titleText"
-        android:layout_alignTop="@+id/photo"
-        android:layout_toRightOf="@+id/photo"
-        android:layout_toEndOf="@+id/photo"
-        android:layout_marginLeft="10dp" />
+        android:layout_above="@+id/nameText"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginLeft="5dp" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Name:"
         android:id="@+id/nameText"
-        android:layout_below="@+id/titleText"
-        android:layout_toRightOf="@+id/photo"
-        android:layout_toEndOf="@+id/photo"
-        android:layout_marginLeft="10dp" />
+        android:layout_above="@+id/phoneText"
+        android:layout_alignLeft="@+id/titleText"
+        android:layout_alignStart="@+id/titleText" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Phone:"
         android:id="@+id/phoneText"
-        android:layout_below="@+id/nameText"
-        android:layout_toRightOf="@+id/photo"
-        android:layout_toEndOf="@+id/photo"
-        android:layout_marginLeft="10dp" />
+        android:layout_above="@+id/priceText"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginLeft="5dp" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Price:"
         android:id="@+id/priceText"
-        android:layout_below="@+id/phoneText"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginLeft="5dp" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="50dp"
+        android:text="New Listing"
+        android:id="@+id/newListing"
+        android:layout_row="0"
+        android:layout_column="0"
+        android:layout_columnSpan="4"
+        android:textColor="#ffffff"
+        android:backgroundTint="#2da3f1"
+        android:onClick="makeNewListing"
+        android:layout_rowSpan="1"
+        android:layout_below="@+id/gridLayout"
         android:layout_toRightOf="@+id/photo"
-        android:layout_toEndOf="@+id/photo"
-        android:layout_marginLeft="10dp" />
+        android:layout_toEndOf="@+id/photo" />
+
+    <EditText
+        android:layout_width="42dp"
+        android:layout_height="wrap_content"
+        android:inputType="number"
+        android:ems="10"
+        android:id="@+id/listingRadius"
+        android:layout_row="0"
+        android:layout_column="4"
+        android:layout_alignTop="@+id/gridLayout"
+        android:layout_toRightOf="@+id/newListing"
+        android:layout_toEndOf="@+id/newListing" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Listings"
+        android:id="@+id/showListing"
+        android:layout_row="0"
+        android:layout_column="5"
+        android:onClick="showListings"
+        android:backgroundTint="#fecf42"
+        android:textColor="#ffffff"
+        android:layout_alignTop="@+id/gridLayout"
+        android:layout_toRightOf="@+id/listingRadius"
+        android:layout_toEndOf="@+id/listingRadius" />
+
+    <Button
+        android:layout_width="110dp"
+        android:layout_height="wrap_content"
+        android:text="Request"
+        android:id="@+id/newRequest"
+        android:layout_row="0"
+        android:layout_column="6"
+        android:backgroundTint="#2df051"
+        android:textColor="#ffffff"
+        android:layout_below="@+id/newListing"
+        android:layout_alignLeft="@+id/newListing"
+        android:layout_alignStart="@+id/newListing"
+        android:onClick="createRequest"/>
+
+    <EditText
+        android:layout_width="42dp"
+        android:layout_height="wrap_content"
+        android:inputType="number"
+        android:ems="10"
+        android:id="@+id/editText2"
+        android:layout_alignBottom="@+id/newRequest"
+        android:layout_toRightOf="@+id/newRequest"
+        android:layout_toEndOf="@+id/newRequest" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Requests"
+        android:id="@+id/showRequest"
+        android:layout_alignBottom="@+id/editText2"
+        android:layout_toRightOf="@+id/editText2"
+        android:layout_toEndOf="@+id/editText2"
+        android:backgroundTint="#f6a234"
+        android:textColor="#ffffff" />
 
 
 </RelativeLayout>

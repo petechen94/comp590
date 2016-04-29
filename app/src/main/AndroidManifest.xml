@@ -38,6 +38,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".NewListingActivity"></activity>
+        <activity android:name=".NewRequestActivity"></activity>
     </application>
 
 </manifest>

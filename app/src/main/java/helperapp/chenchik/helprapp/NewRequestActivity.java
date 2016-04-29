@@ -3,42 +3,24 @@ package helperapp.chenchik.helprapp;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Bitmap;
-import android.hardware.Sensor;
-import android.hardware.SensorManager;
 import android.location.Location;
-import android.opengl.Matrix;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.util.Log;
-import android.content.Context;
-import android.content.Intent;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
-import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
-import android.widget.GridLayout;
 import android.widget.ImageView;
-import android.widget.SeekBar;
-import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.FileOutputStream;
-import java.util.List;
-
-
 
 /**
- * Created by chenchik on 3/28/2016.
+ * Created by chenchik on 4/29/2016.
  */
-public class NewListingActivity extends AppCompatActivity{
+public class NewRequestActivity extends AppCompatActivity{
 
     Location globalLoc = null;
     double globalLat;
@@ -52,7 +34,7 @@ public class NewListingActivity extends AppCompatActivity{
 
 
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_new_listing);
+        setContentView(R.layout.activity_new_request);
 
         Bundle extras = getIntent().getExtras();
         if(extras != null){
@@ -61,7 +43,7 @@ public class NewListingActivity extends AppCompatActivity{
             globalLong = globalLoc.getLongitude();
         }
 
-        Log.v("loc is right now", " "+ globalLoc);
+        Log.v("loc is right now", " " + globalLoc);
         Log.v("latitude is:", ""+globalLat);
         Log.v("longitude is:", ""+globalLong);
     }
@@ -87,7 +69,7 @@ public class NewListingActivity extends AppCompatActivity{
 
 
         Bitmap scaledBitmap = Bitmap.createScaledBitmap((Bitmap)data.getExtras().get("data"), iv.getWidth(), iv.getHeight(), true);
-        Bitmap rotatedBitmap = Bitmap.createBitmap(scaledBitmap , 0, 0, scaledBitmap.getWidth(), scaledBitmap.getHeight(), matrix, true);
+        Bitmap rotatedBitmap = Bitmap.createBitmap(scaledBitmap, 0, 0, scaledBitmap.getWidth(), scaledBitmap.getHeight(), matrix, true);
 
         iv.setImageBitmap(rotatedBitmap);
         iv.setScaleType(ImageView.ScaleType.FIT_XY);
@@ -98,7 +80,6 @@ public class NewListingActivity extends AppCompatActivity{
 
 
     }
-
     public void selectCategory(View v){
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Chose a category for your item");
@@ -132,14 +113,14 @@ public class NewListingActivity extends AppCompatActivity{
         EditText editPhoneNumber = (EditText) findViewById(R.id.editPhoneNumber);
         String phoneNumberText = editPhoneNumber.getText().toString();
 
-        EditText editPrice = (EditText) findViewById(R.id.editPrice);
-        String priceText = editPrice.getText().toString();
+        EditText editBudget = (EditText) findViewById(R.id.editBudget);
+        String budgetText = editBudget.getText().toString();
         int priceNum = 0;
-        if(priceText.equals("")){
+        if(budgetText.equals("")){
             priceNum = -1; //dummy value
         }
         else{
-            priceNum = Integer.parseInt(priceText);
+            priceNum = Integer.parseInt(budgetText);
             Log.v("price is", ""+priceNum);
         }
 
@@ -159,7 +140,7 @@ public class NewListingActivity extends AppCompatActivity{
             showPop("please enter your phone number");
         }
         //else if(priceNum == -1){
-        else if(priceText.equals("")){
+        else if(budgetText.equals("")){
             showPop("please enter a price per hour");
         }
         else if(globalPicture == null){
@@ -189,10 +170,10 @@ public class NewListingActivity extends AppCompatActivity{
                 x.putExtra("title", titleText);
                 x.putExtra("name", nameText);
                 x.putExtra("phoneNumber", phoneNumberText);
-                x.putExtra("price", priceText);
+                x.putExtra("price", budgetText);
                 x.putExtra("photo", filename);
                 x.putExtra("category", chosenCategory);
-                x.putExtra("type", "Listing");
+                x.putExtra("type", "Request");
 
                 //in1.putExtra("image", filename);
                 startActivity(x);
@@ -228,6 +209,9 @@ public class NewListingActivity extends AppCompatActivity{
 
         return Bitmap.createScaledBitmap(bm, newWidth, newHeight, false);
     }
+
+
+
 
 
 }

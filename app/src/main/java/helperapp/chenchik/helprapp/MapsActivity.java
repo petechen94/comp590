@@ -16,6 +16,7 @@ import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -29,6 +30,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -101,7 +103,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Location tempLoc = new Location("dummyLocation");
         tempLoc.setLatitude(35.912462);
         tempLoc.setLongitude(-79.051786);
-        listings.add(new Listing("Bikes", "newnewtitle", "joe shmo", "5555555", "2", tempLoc, null));
+        listings.add(new Listing("Bike", "newnewtitle", "joe shmo", "5555555", "2", tempLoc, null));
 
         c = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
@@ -255,58 +257,141 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     public void showListings(View v){
-        for(int i = 0; i < listings.size(); i++){
-            LatLng temp = new LatLng(listings.get(i).getLocation().getLatitude(), listings.get(i).getLocation().getLongitude());
-            mMap.addMarker(new MarkerOptions().position(temp).title(i+""));
-            mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+        mMap.clear();
+        //double rad = Integer.parseInt(((EditText) findViewById(R.id.listingRadius)).getText().toString());
+        double rad;
+        String radString = ((EditText) findViewById(R.id.listingRadius)).getText().toString();
+        //Log.v("rad is ",rad+"");
 
-                @Override
-                public boolean onMarkerClick(Marker arg0) {
-                    Listing l = listings.get(Integer.parseInt(arg0.getTitle()));
-                    Bitmap bmp = null;
-                    String filename = l.getPicture();
-                    if(filename != null) {
-                        try {
-                            FileInputStream is = _this.openFileInput(filename);
-                            bmp = BitmapFactory.decodeStream(is);
-                            is.close();
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                        ImageView iv = null;
-                        iv = ((ImageView) findViewById(R.id.photo));//.setImageBitmap(bm);
-                        iv.setImageBitmap(bmp);
-                        iv.setScaleType(ImageView.ScaleType.FIT_XY);
+        if(!radString.equals("")) {
+            //String
+            rad = Integer.parseInt(radString);
+            for (int i = 0; i < listings.size(); i++) {
+
+
+                LatLng temp = new LatLng(listings.get(i).getLocation().getLatitude(), listings.get(i).getLocation().getLongitude());
+                double currentLat = loc.getLatitude();
+                double currentLong = loc.getLongitude();
+                double tempLat = temp.latitude;
+                double tempLong = temp.longitude;
+
+                double distance = Math.sqrt(Math.pow(Math.abs(currentLat - tempLat), 2) +
+                        Math.pow(Math.abs(currentLong - tempLong), 2));
+
+                //double distance =
+
+                if (distance <= rad) {
+
+                    switch (listings.get(i).getCategory()) {
+                        case "Bike":
+                            mMap.addMarker(new MarkerOptions()
+                                    .position(temp)
+                                    .title(i + "")
+                                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.bikesmall)));
+                            break;
+                        case "Skateboard":
+                            mMap.addMarker(new MarkerOptions()
+                                    .position(temp)
+                                    .title(i + "")
+                                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.skateboardsmall)));
+                            break;
+                        case "Surfboard":
+                            mMap.addMarker(new MarkerOptions()
+                                    .position(temp)
+                                    .title(i + "")
+                                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.wavessmall)));
+                            break;
+                        case "Snowboard":
+                            mMap.addMarker(new MarkerOptions()
+                                    .position(temp)
+                                    .title(i + "")
+                                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.snowsmall)));
+                            break;
+                        case "Skis":
+                            mMap.addMarker(new MarkerOptions()
+                                    .position(temp)
+                                    .title(i + "")
+                                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.skismall)));
+                            break;
+                        case "Rollerblade":
+                            mMap.addMarker(new MarkerOptions()
+                                    .position(temp)
+                                    .title(i + "")
+                                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.rollerskatessmall)));
+                            break;
+                        case "Tent":
+                            mMap.addMarker(new MarkerOptions()
+                                    .position(temp)
+                                    .title(i + "")
+                                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.tentsmall)));
+                            break;
+
                     }
-                    else{
-                        ImageView iv = null;
-                        iv = ((ImageView) findViewById(R.id.photo));//.setImageBitmap(bm);
-                        Bitmap bm = BitmapFactory.decodeResource(getResources(), R.drawable.solid_gray);
-                        iv.setImageBitmap(bm);
-                        iv.setScaleType(ImageView.ScaleType.FIT_XY);
-                    }
-
-                    //update textViews
-                    TextView titleText = (TextView) findViewById(R.id.titleText);
-                    titleText.setText("Title: "+l.getTitle());
-                    TextView nameText = (TextView) findViewById(R.id.nameText);
-                    nameText.setText("Name: "+l.getName());
-                    TextView phoneText = (TextView) findViewById(R.id.phoneText);
-                    phoneText.setText("Phone: "+l.getPhone());
-                    TextView priceText = (TextView) findViewById(R.id.priceText);
-                    priceText.setText("Price: $"+l.getPrice());
-
-
-                    return true;
                 }
+                /*mMap.addMarker(new MarkerOptions()
+                        .position(temp)
+                        .title(i + "")
+                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.bike)));*/
+                mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
 
-            });
+                    @Override
+                    public boolean onMarkerClick(Marker arg0) {
+                        Listing l = listings.get(Integer.parseInt(arg0.getTitle()));
+                        Bitmap bmp = null;
+                        String filename = l.getPicture();
+                        if (filename != null) {
+                            try {
+                                FileInputStream is = _this.openFileInput(filename);
+                                Log.v("file size is: ", "" + is.getChannel().size());
+                                bmp = BitmapFactory.decodeStream(is);
+                                is.close();
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                            ImageView iv = null;
+                            iv = ((ImageView) findViewById(R.id.photo));//.setImageBitmap(bm);
+                            iv.setImageBitmap(bmp);
+                            iv.setScaleType(ImageView.ScaleType.FIT_XY);
+                        } else {
+                            ImageView iv = null;
+                            iv = ((ImageView) findViewById(R.id.photo));//.setImageBitmap(bm);
+                            Bitmap bm = BitmapFactory.decodeResource(getResources(), R.drawable.solid_gray);
+                            iv.setImageBitmap(bm);
+                            iv.setScaleType(ImageView.ScaleType.FIT_XY);
+                        }
+
+                        //update textViews
+                        TextView titleText = (TextView) findViewById(R.id.titleText);
+                        titleText.setText("Title: " + l.getTitle());
+                        TextView nameText = (TextView) findViewById(R.id.nameText);
+                        nameText.setText("Name: " + l.getName());
+                        TextView phoneText = (TextView) findViewById(R.id.phoneText);
+                        phoneText.setText("Phone: " + l.getPhone());
+                        TextView priceText = (TextView) findViewById(R.id.priceText);
+                        priceText.setText("Price: $" + l.getPrice());
+
+
+                        return true;
+                    }
+
+                });
+            }
         }
-
+        else{
+            showPop("please set a radius.");
+        }
     }
 
     public void updateText(TextView t, String text){
         t.setText(text);
+    }
+
+
+
+    public void createRequest(View v){
+        Intent x = new Intent(this, NewRequestActivity.class);
+        x.putExtra("currentLocation", loc);
+        startActivity(x);
     }
 
 }

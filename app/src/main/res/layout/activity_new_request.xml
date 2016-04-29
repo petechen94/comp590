@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Request Title"
+            android:id="@+id/requestTitle" />
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="text"
+            android:ems="10"
+            android:id="@+id/editTitle" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Your Name"
+            android:id="@+id/name" />
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textPersonName"
+            android:ems="10"
+            android:id="@+id/editName" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Phone Number"
+            android:id="@+id/phoneNumber" />
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="phone"
+            android:ems="10"
+            android:id="@+id/editPhoneNumber" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Budget"
+            android:id="@+id/budget" />
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="numberDecimal"
+            android:ems="10"
+            android:id="@+id/editBudget" />
+    </LinearLayout>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Take Photo"
+        android:id="@+id/photoButton"
+        android:backgroundTint="#35aae9"
+        android:textColor="#ffffff"
+        android:onClick="runCamera"
+        android:layout_alignBottom="@+id/catButton"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:textSize="12dp"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Category"
+        android:id="@+id/catButton"
+        android:layout_above="@+id/photo"
+        android:layout_toRightOf="@+id/photoButton"
+        android:layout_toEndOf="@+id/photoButton"
+        android:backgroundTint="#fcbc3d"
+        android:textColor="#ffffff"
+        android:onClick="selectCategory"
+        android:textSize="12dp"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Cancel"
+        android:id="@+id/cancelButton"
+        android:layout_toRightOf="@+id/catButton"
+        android:layout_toEndOf="@+id/catButton"
+        android:layout_alignTop="@+id/catButton"
+        android:layout_alignParentBottom="true"
+        android:textColor="#ffffff"
+        android:backgroundTint="#a55fde"
+        android:textSize="12dp"
+        android:onClick="cancelListing"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Submit"
+        android:id="@+id/submitButton"
+        android:layout_toRightOf="@+id/cancelButton"
+        android:layout_toEndOf="@+id/cancelButton"
+        android:layout_alignTop="@+id/cancelButton"
+        android:layout_alignParentBottom="true"
+        android:backgroundTint="#4cdc72"
+        android:textColor="#ffffff"
+        android:textSize="12dp"
+        android:onClick="submitListing"/>
+
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="220dp"
+        android:id="@+id/photo"
+        android:layout_gravity="top"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginLeft="5dp"
+        android:layout_toStartOf="@+id/cancelButton"
+        android:layout_toLeftOf="@+id/cancelButton"
+        android:backgroundTint="#bababa"
+        android:layout_marginBottom="5dp" />
+
+</RelativeLayout>
