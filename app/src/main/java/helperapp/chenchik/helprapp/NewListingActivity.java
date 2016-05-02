@@ -3,36 +3,22 @@ package helperapp.chenchik.helprapp;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Bitmap;
-import android.hardware.Sensor;
-import android.hardware.SensorManager;
 import android.location.Location;
-import android.opengl.Matrix;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.util.Log;
-import android.content.Context;
-import android.content.Intent;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
-import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
-import android.widget.GridLayout;
 import android.widget.ImageView;
-import android.widget.SeekBar;
-import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.FileOutputStream;
-import java.util.List;
+import java.util.HashMap;
 
+import helperapp.chenchik.helprapp.library.DatabaseHandler;
 
 
 /**
@@ -46,6 +32,7 @@ public class NewListingActivity extends AppCompatActivity{
     static final CharSequence categories[] = new CharSequence[] {"Bike", "Skateboard", "Surfboard" , "Snowboard", "Skis", "Rollerblade", "Tent"};
     String chosenCategory = null;
     Bitmap globalPicture = null;
+    HashMap<String,String> user = new HashMap<String, String>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,6 +47,14 @@ public class NewListingActivity extends AppCompatActivity{
             globalLat = globalLoc.getLatitude();
             globalLong = globalLoc.getLongitude();
         }
+
+        DatabaseHandler db = new DatabaseHandler(getApplicationContext());
+
+        /**
+         * Hashmap to load data from the Sqlite database
+         **/
+//        HashMap<String,String> user = new HashMap<String, String>();
+        user = db.getUserDetails();
 
         Log.v("loc is right now", " "+ globalLoc);
         Log.v("latitude is:", ""+globalLat);
@@ -126,8 +121,11 @@ public class NewListingActivity extends AppCompatActivity{
         String titleText = editTitle.getText().toString();
         Log.v("text title is", ""+titleText);
 
-        EditText editName = (EditText) findViewById(R.id.editName);
-        String nameText = editName.getText().toString();
+
+//        EditText editName = (EditText) findViewById(R.id.editName);
+        String nameText = user.get("email");
+
+//        editName.getText().toString();
 
         EditText editPhoneNumber = (EditText) findViewById(R.id.editPhoneNumber);
         String phoneNumberText = editPhoneNumber.getText().toString();
@@ -152,9 +150,9 @@ public class NewListingActivity extends AppCompatActivity{
         else if(titleText.equals("")){
             showPop("Please create a title");
         }
-        else if(nameText.equals("")){
-            showPop("Please enter your name");
-        }
+//        else if(nameText.equals("")){
+//            showPop("Please enter your name");
+//        }
         else if(phoneNumberText.equals("")){
             showPop("please enter your phone number");
         }
