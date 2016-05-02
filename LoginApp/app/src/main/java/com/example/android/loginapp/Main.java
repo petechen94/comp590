@@ -76,10 +76,11 @@ public class Main extends Activity {
 /**
  * Sets user first name and last name in text view.
  **/
-        final TextView login = (TextView) findViewById(R.id.textwelcome);
-        login.setText("Welcome  "+user.get("fname"));
-        final TextView lname = (TextView) findViewById(R.id.lname);
-        lname.setText(user.get("lname"));
-
+        final TextView welcome  = (TextView) findViewById(R.id.textwelcome);
+        welcome.setText("Welcome  " + user.get("fname") + " " + user.get("lname"));
+        final TextView email = (TextView) findViewById(R.id.textemail);
+        email.setText(user.get("email"));
+        final TextView created_at = (TextView) findViewById(R.id.textcreated_at);
+        created_at.setText(user.get("created_at"));
 
     }}
