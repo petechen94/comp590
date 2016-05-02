@@ -1,38 +1,36 @@
 package helperapp.chenchik.helprapp;
 
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Bitmap;
-import android.hardware.Sensor;
-import android.hardware.SensorManager;
 import android.location.Location;
-import android.opengl.Matrix;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.util.Log;
-import android.content.Context;
-import android.content.Intent;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
-import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
-import android.widget.GridLayout;
 import android.widget.ImageView;
-import android.widget.SeekBar;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.FileOutputStream;
-import java.util.List;
+import org.json.JSONException;
+import org.json.JSONObject;
 
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.HashMap;
+
+import helperapp.chenchik.helprapp.library.DatabaseHandler;
+import helperapp.chenchik.helprapp.library.UserFunctions;
 
 
 /**
@@ -46,6 +44,17 @@ public class NewListingActivity extends AppCompatActivity{
     static final CharSequence categories[] = new CharSequence[] {"Bike", "Skateboard", "Surfboard" , "Snowboard", "Skis", "Rollerblade", "Tent"};
     String chosenCategory = null;
     Bitmap globalPicture = null;
+    HashMap<String,String> user = new HashMap<String, String>();
+
+    private static String KEY_SUCCESS = "success";
+    private static String KEY_ERROR = "error";
+    private static String KEY_TITLE = "title";
+    private static String KEY_PRICE = "price";
+
+    TextView registerErrorMsg;
+    String priceText, titleText;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,12 +63,23 @@ public class NewListingActivity extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_listing);
 
+        //sets error msg loc
+        registerErrorMsg = (TextView) findViewById(R.id.errormsg);
+
         Bundle extras = getIntent().getExtras();
         if(extras != null){
             globalLoc = extras.getParcelable("currentLocation");
             globalLat = globalLoc.getLatitude();
             globalLong = globalLoc.getLongitude();
         }
+
+        DatabaseHandler db = new DatabaseHandler(getApplicationContext());
+
+        /**
+         * Hashmap to load data from the Sqlite database
+         **/
+//        HashMap<String,String> user = new HashMap<String, String>();
+        user = db.getUserDetails();
 
         Log.v("loc is right now", " "+ globalLoc);
         Log.v("latitude is:", ""+globalLat);
@@ -123,17 +143,20 @@ public class NewListingActivity extends AppCompatActivity{
     }
     public void submitListing(View v){
         EditText editTitle = (EditText) findViewById(R.id.editTitle);
-        String titleText = editTitle.getText().toString();
+        titleText = editTitle.getText().toString();
         Log.v("text title is", ""+titleText);
 
-        EditText editName = (EditText) findViewById(R.id.editName);
-        String nameText = editName.getText().toString();
+
+//        EditText editName = (EditText) findViewById(R.id.editName);
+        String nameText = user.get("email");
+
+//        editName.getText().toString();
 
         EditText editPhoneNumber = (EditText) findViewById(R.id.editPhoneNumber);
         String phoneNumberText = editPhoneNumber.getText().toString();
 
         EditText editPrice = (EditText) findViewById(R.id.editPrice);
-        String priceText = editPrice.getText().toString();
+        priceText = editPrice.getText().toString();
         int priceNum = 0;
         if(priceText.equals("")){
             priceNum = -1; //dummy value
@@ -152,9 +175,9 @@ public class NewListingActivity extends AppCompatActivity{
         else if(titleText.equals("")){
             showPop("Please create a title");
         }
-        else if(nameText.equals("")){
-            showPop("Please enter your name");
-        }
+//        else if(nameText.equals("")){
+//            showPop("Please enter your name");
+//        }
         else if(phoneNumberText.equals("")){
             showPop("please enter your phone number");
         }
@@ -166,39 +189,42 @@ public class NewListingActivity extends AppCompatActivity{
             showPop("please snap a photo");
         }
         else{
-            try {
-                //Write file
-                String filename = nameText + "-" + titleText + ".png";
-                FileOutputStream stream = this.openFileOutput(filename, Context.MODE_PRIVATE);
-                globalPicture = scaleDownBitmap(globalPicture, 3);
-                globalPicture.compress(Bitmap.CompressFormat.PNG, 100, stream);
+            NetAsync(v);
 
-                //Cleanup
-                stream.close();
-                globalPicture.recycle();
-
-                //Pop intent
-                Intent x = new Intent(this, MapsActivity.class);
-
-
-                //insert SQL code here
-
-                x.putExtra("lat", globalLat);
-                x.putExtra("long", globalLong);
-                x.putExtra("location", globalLoc);
-                x.putExtra("title", titleText);
-                x.putExtra("name", nameText);
-                x.putExtra("phoneNumber", phoneNumberText);
-                x.putExtra("price", priceText);
-                x.putExtra("photo", filename);
-                x.putExtra("category", chosenCategory);
-                x.putExtra("type", "Listing");
-
-                //in1.putExtra("image", filename);
-                startActivity(x);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+//            try {
+//
+//                //Write file
+//                String filename = nameText + "-" + titleText + ".png";
+//                FileOutputStream stream = this.openFileOutput(filename, Context.MODE_PRIVATE);
+//                globalPicture = scaleDownBitmap(globalPicture, 3);
+//                globalPicture.compress(Bitmap.CompressFormat.PNG, 100, stream);
+//
+//                //Cleanup
+//                stream.close();
+//                globalPicture.recycle();
+//
+//                //Pop intent
+//                Intent x = new Intent(this, MapsActivity.class);
+//
+//
+//                //insert SQL code here
+//
+//                x.putExtra("lat", globalLat);
+//                x.putExtra("long", globalLong);
+//                x.putExtra("location", globalLoc);
+//                x.putExtra("title", titleText);
+//                x.putExtra("name", nameText);
+//                x.putExtra("phoneNumber", phoneNumberText);
+//                x.putExtra("price", priceText);
+//                x.putExtra("photo", filename);
+//                x.putExtra("category", chosenCategory);
+//                x.putExtra("type", "Listing");
+//
+//                //in1.putExtra("image", filename);
+//                startActivity(x);
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
         }
     }
     public void showPop(String s){
@@ -229,5 +255,178 @@ public class NewListingActivity extends AppCompatActivity{
         return Bitmap.createScaledBitmap(bm, newWidth, newHeight, false);
     }
 
+    private class NetCheck extends AsyncTask<String,String,Boolean>
+    {
+        private ProgressDialog nDialog;
 
+        @Override
+        protected void onPreExecute(){
+            super.onPreExecute();
+            nDialog = new ProgressDialog(NewListingActivity.this);
+            nDialog.setMessage("Loading..");
+            nDialog.setTitle("Checking Network");
+            nDialog.setIndeterminate(false);
+            nDialog.setCancelable(true);
+            nDialog.show();
+        }
+
+        @Override
+        protected Boolean doInBackground(String... args){
+
+
+/**
+ * Gets current device state and checks for working internet connection by trying Google.
+ **/
+            ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo netInfo = cm.getActiveNetworkInfo();
+            if (netInfo != null && netInfo.isConnected()) {
+                try {
+                    URL url = new URL("http://www.google.com");
+                    HttpURLConnection urlc = (HttpURLConnection) url.openConnection();
+                    urlc.setConnectTimeout(3000);
+                    urlc.connect();
+                    if (urlc.getResponseCode() == 200) {
+                        return true;
+                    }
+                } catch (MalformedURLException e1) {
+                    // TODO Auto-generated catch block
+                    e1.printStackTrace();
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
+            return false;
+
+        }
+        @Override
+        protected void onPostExecute(Boolean th){
+
+            if(th == true){
+                nDialog.dismiss();
+                new ProcessRegister().execute();
+            }
+            else{
+                nDialog.dismiss();
+                registerErrorMsg.setText("Error in Network Connection");
+            }
+        }
+    }
+
+
+
+
+
+    private class ProcessRegister extends AsyncTask<String, String, JSONObject> {
+
+        /**
+         * Defining Process dialog
+         **/
+        private ProgressDialog pDialog;
+
+        String email,password,fname,lname,uname;
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+//            inputUsername = (EditText) findViewById(R.id.uname);
+//            inputPassword = (EditText) findViewById(R.id.pword);
+//            fname = inputFirstName.getText().toString();
+//            lname = inputLastName.getText().toString();
+//            email = inputEmail.getText().toString();
+//            uname= inputUsername.getText().toString();
+//            password = inputPassword.getText().toString();
+            pDialog = new ProgressDialog(NewListingActivity.this);
+            pDialog.setTitle("Contacting Servers");
+            pDialog.setMessage("Registering ...");
+            pDialog.setIndeterminate(false);
+            pDialog.setCancelable(true);
+            pDialog.show();
+        }
+
+        @Override
+        protected JSONObject doInBackground(String... args) {
+            UserFunctions userFunction = new UserFunctions();
+            Log.v("titleText: ", titleText + ", priceText: " + priceText);
+            JSONObject json = userFunction.newListing(titleText, priceText);
+
+            return json;
+
+
+        }
+        @Override
+        protected void onPostExecute(JSONObject json) {
+            /**
+             * Checks for success message.
+             **/
+            Log.v("beforePostExecute", "" + json);
+            try {
+                if (json.getString(KEY_SUCCESS) != null) {
+                    Log.v("tryPostExecute", "" + json);
+                    registerErrorMsg.setText("");
+                    String res = json.getString(KEY_SUCCESS);
+                    String red = json.getString(KEY_ERROR);
+
+                    if(Integer.parseInt(res) == 1){
+                        pDialog.setTitle("Getting Data");
+                        pDialog.setMessage("Loading Info");
+
+                        registerErrorMsg.setText("Successfully Registered");
+
+
+                         DatabaseHandler db = new DatabaseHandler(getApplicationContext());
+                         Log.v("after success", "" + json);
+                         JSONObject json_listing = json.getJSONObject("listing");
+
+                         /**
+                         * Removes all the previous data in the SQlite database
+                         **/
+
+                        UserFunctions logout = new UserFunctions();
+                        logout.logoutUser(getApplicationContext());
+                        db.addListing(json_listing.getString(KEY_TITLE), json_listing.getString(KEY_PRICE));
+                        /**
+                         * Stores registered data in SQlite Database
+                         * Launch Registered screen
+                         **/
+
+                        Intent mapsactivity = new Intent(getApplicationContext(), helperapp.chenchik.helprapp.MapsActivity.class);
+
+                        /**
+                         * Close all views before launching Registered screen
+                         **/
+                        mapsactivity.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        pDialog.dismiss();
+                        startActivity(mapsactivity);
+
+
+                        finish();
+                    }
+
+                    else if (Integer.parseInt(red) ==2){
+                        pDialog.dismiss();
+                        registerErrorMsg.setText("User already exists");
+                    }
+                    else if (Integer.parseInt(red) ==3){
+                        pDialog.dismiss();
+                        registerErrorMsg.setText("Invalid Email id");
+                    }
+
+                }
+
+
+                else{
+                    pDialog.dismiss();
+
+                    registerErrorMsg.setText("Error occured in registration");
+                }
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+
+
+            }
+        }}
+    public void NetAsync(View view){
+        new NetCheck().execute();
+    }
 }

@@ -1,19 +1,15 @@
 package helperapp.chenchik.helprapp;
 
-import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.media.MediaPlayer;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
-import android.support.v4.content.ContextCompat;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
@@ -262,7 +258,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         double rad;
         String radString = ((EditText) findViewById(R.id.listingRadius)).getText().toString();
         //Log.v("rad is ",rad+"");
-
+        
         if(!radString.equals("")) {
             //String
             rad = Integer.parseInt(radString);
