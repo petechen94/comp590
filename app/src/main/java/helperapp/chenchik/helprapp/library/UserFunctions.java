@@ -23,21 +23,18 @@ public class UserFunctions {
 
     //URL of the PHP API
     // it was previously set to index
-//    private static String loginURL = "http://cs.unc.edu/~pl/590proj/index.php";
-//    private static String registerURL = "http://cs.unc.edu/~pl/590proj/index.php";
-//    private static String forpassURL = "http://cs.unc.edu/~pl/590proj/index.php";
-//    private static String chgpassURL = "http://cs.unc.edu/~pl/590proj/index.php";
+//    private static String apiURL = "http://cs.unc.edu/~pl/590proj/index.php";
+//    private static String apiURL = "http://cs.unc.edu/~pl/590proj/index.php";
+//    private static String apiURL = "http://cs.unc.edu/~pl/590proj/index.php";
+//    private static String apiURL = "http://cs.unc.edu/~pl/590proj/index.php";
 
-    private static String loginURL = "http://13lobsters.com/helpr/";
-    private static String registerURL = "http://13lobsters.com/helpr/";
-    private static String forpassURL = "http://13lobsters.com/helpr/";
-    private static String chgpassURL = "http://13lobsters.com/helpr/";
+    private static String apiURL = "http://13lobsters.com/helpr/";
 
     private static String login_tag = "login";
     private static String register_tag = "register";
     private static String forpass_tag = "forpass";
     private static String chgpass_tag = "chgpass";
-    private static String new_listing = "newlisting";
+    private static String new_listing_tag = "newlisting";
 
     // constructor
     public UserFunctions(){
@@ -50,12 +47,15 @@ public class UserFunctions {
 
     public JSONObject loginUser(String email, String password){
         // Building Parameters
+        Log.v("I'm here in", "loginUser");
+
         List<NameValuePair> params = new ArrayList<NameValuePair>();
         params.add(new BasicNameValuePair("tag", login_tag));
         params.add(new BasicNameValuePair("email", email));
         params.add(new BasicNameValuePair("password", password));
         Log.v("userfunc/params", "" + params);
-        JSONObject json = jsonParser.getJSONFromUrl(loginURL, params);
+        JSONObject json = jsonParser.getJSONFromUrl(apiURL, params);
+        Log.v("Login JSON obj", "" + json);
         return json;
     }
 
@@ -69,7 +69,7 @@ public class UserFunctions {
 
         params.add(new BasicNameValuePair("newpas", newpas));
         params.add(new BasicNameValuePair("email", email));
-        JSONObject json = jsonParser.getJSONFromUrl(chgpassURL, params);
+        JSONObject json = jsonParser.getJSONFromUrl(apiURL, params);
         return json;
     }
 
@@ -85,7 +85,7 @@ public class UserFunctions {
         List<NameValuePair> params = new ArrayList<NameValuePair>();
         params.add(new BasicNameValuePair("tag", forpass_tag));
         params.add(new BasicNameValuePair("forgotpassword", forgotpassword));
-        JSONObject json = jsonParser.getJSONFromUrl(forpassURL, params);
+        JSONObject json = jsonParser.getJSONFromUrl(apiURL, params);
         return json;
     }
 
@@ -106,7 +106,20 @@ public class UserFunctions {
         params.add(new BasicNameValuePair("email", email));
         params.add(new BasicNameValuePair("uname", uname));
         params.add(new BasicNameValuePair("password", password));
-        JSONObject json = jsonParser.getJSONFromUrl(registerURL,params);
+        JSONObject json = jsonParser.getJSONFromUrl(apiURL,params);
+        return json;
+    }
+
+    public JSONObject newListing(String title, String price){
+        // Building Parameters
+        Log.v("I'm here in", "newListing");
+        List<NameValuePair> params = new ArrayList<NameValuePair>();
+        params.add(new BasicNameValuePair("tag", new_listing_tag));
+        params.add(new BasicNameValuePair("title", title));
+        params.add(new BasicNameValuePair("price", price));
+        JSONObject json = jsonParser.getJSONFromUrl(apiURL,params);
+        Log.v("newListing JSON obj", "" + json);
+
         return json;
     }
 

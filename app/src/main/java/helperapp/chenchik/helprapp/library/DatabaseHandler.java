@@ -36,6 +36,14 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     private static final String KEY_UID = "uid";
     private static final String KEY_CREATED_AT = "created_at";
 
+    // Login table name
+    private static final String TABLE_LISTING = "listing";
+
+    // Login Table Columns names
+    private static final String KEY_LID = "lid";
+    private static final String KEY_TITLE = "title";
+    private static final String KEY_PRICE = "price";
+
     public DatabaseHandler(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
@@ -52,6 +60,12 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 + KEY_UID + " TEXT,"
                 + KEY_CREATED_AT + " TEXT" + ")";
         db.execSQL(CREATE_LOGIN_TABLE);
+
+        String CREATE_LISTING_TABLE = "CREATE TABLE " + TABLE_LISTING + "("
+                + KEY_LID + " INTEGER PRIMARY KEY,"
+                + KEY_TITLE + " TEXT,"
+                + KEY_PRICE + " TEXT)";
+        db.execSQL(CREATE_LISTING_TABLE);
     }
 
     // Upgrading database
@@ -83,6 +97,21 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.close(); // Closing database connection
     }
 
+    /**
+     * Storing listing details in database
+     * */
+    public void addListing(String title, String price) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(KEY_TITLE, title); // FirstName
+        values.put(KEY_PRICE, price); // LastName
+
+        // Inserting Row
+        db.insert(TABLE_LISTING, null, values);
+        db.close(); // Closing database connection
+    }
+
 
     /**
      * Getting user data from database
@@ -109,7 +138,26 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         return user;
     }
 
+    /**
+     * Getting user data from database
+     * */
+    public HashMap<String, String> getListingDetails(){
+        HashMap<String,String> listing = new HashMap<String,String>();
+        String selectQuery = "SELECT * FROM " + TABLE_LISTING;
 
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(selectQuery, null);
+        // Move to first row
+        cursor.moveToFirst();
+        if(cursor.getCount() > 0){
+            listing.put("title", cursor.getString(1));
+            listing.put("price", cursor.getString(2));
+        }
+        cursor.close();
+        db.close();
+        // return listing
+        return listing;
+    }
 
 
 
@@ -130,6 +178,18 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         return rowCount;
     }
 
+    public int getListingRowCount() {
+        String countQuery = "SELECT  * FROM " + TABLE_LISTING;
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(countQuery, null);
+        int rowCount = cursor.getCount();
+        db.close();
+        cursor.close();
+
+        // return row count
+        return rowCount;
+    }
+
 
     /**
      * Re crate database
@@ -138,7 +198,10 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public void resetTables(){
         SQLiteDatabase db = this.getWritableDatabase();
         // Delete All Rows
+
         db.delete(TABLE_LOGIN, null, null);
+//        db.delete(TABLE_LISTING, null, null);
+
         db.close();
     }
 
