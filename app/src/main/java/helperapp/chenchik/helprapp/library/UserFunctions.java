@@ -35,6 +35,7 @@ public class UserFunctions {
     private static String forpass_tag = "forpass";
     private static String chgpass_tag = "chgpass";
     private static String new_listing_tag = "newlisting";
+    private static String get_listings_tag = "getlistings";
 
     // constructor
     public UserFunctions(){
@@ -119,6 +120,17 @@ public class UserFunctions {
         params.add(new BasicNameValuePair("price", price));
         JSONObject json = jsonParser.getJSONFromUrl(apiURL,params);
         Log.v("newListing JSON obj", "" + json);
+
+        return json;
+    }
+
+    public JSONObject getListings(){
+        // Building Parameters
+        Log.v("I'm here in", "getListings");
+        List<NameValuePair> params = new ArrayList<NameValuePair>();
+        params.add(new BasicNameValuePair("tag", new_listing_tag));
+        JSONObject json = jsonParser.getJSONFromUrl(apiURL,params);
+        Log.v("getListings JSON obj", "" + json);
 
         return json;
     }

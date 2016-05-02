@@ -31,13 +31,21 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import helperapp.chenchik.helprapp.library.UserFunctions;
+
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener, LocationListener, MediaPlayer.OnPreparedListener {
+
+    private helperapp.chenchik.helprapp.library.JSONParser jsonParser;
 
     private GoogleMap mMap;
     private GoogleApiClient c = null;
@@ -63,6 +71,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     int myLength;
     boolean foundOnce = false;
     ArrayList<Listing> listings = new ArrayList<Listing>();
+    ArrayList<PatListing> listingswithinrad = new ArrayList<>();
     Context _this;
 
     private static final int MY_PERMISSIONS_ACCESS_FINE_LOCATION = 1;
@@ -252,7 +261,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         toast.show();
     }
 
-    public void showListings(View v){
+    public void showListings(View v) throws JSONException {
         mMap.clear();
         //double rad = Integer.parseInt(((EditText) findViewById(R.id.listingRadius)).getText().toString());
         double rad;
@@ -262,68 +271,203 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         if(!radString.equals("")) {
             //String
             rad = Integer.parseInt(radString);
-            for (int i = 0; i < listings.size(); i++) {
 
+//            DatabaseHandler db = new DatabaseHandler(getApplicationContext());
+//
+//            HashMap<String,String> listing = new HashMap<String, String>();
+//            listing = db.getListingDetails();
 
-                LatLng temp = new LatLng(listings.get(i).getLocation().getLatitude(), listings.get(i).getLocation().getLongitude());
-                double currentLat = loc.getLatitude();
-                double currentLong = loc.getLongitude();
-                double tempLat = temp.latitude;
-                double tempLong = temp.longitude;
+            UserFunctions userFunction = new UserFunctions();
+            JSONObject json = userFunction.getListings();
 
-                double distance = Math.sqrt(Math.pow(Math.abs(currentLat - tempLat), 2) +
-                        Math.pow(Math.abs(currentLong - tempLong), 2));
+            //JSONArray c = getJsonArray(json);
+            double currentLat = loc.getLatitude();
+            double currentLong = loc.getLongitude();
 
-                //double distance =
+            try {
+                JSONArray c = json.getJSONArray("listings");
+                for (int i = 0 ; i < c.length(); i++) {
+                    JSONObject obj = c.getJSONObject(i);
+                    double tempLat = obj.getDouble("latitude");
+                    double tempLong = obj.getDouble("longitude");
 
-                if (distance <= rad) {
-
-                    switch (listings.get(i).getCategory()) {
-                        case "Bike":
-                            mMap.addMarker(new MarkerOptions()
-                                    .position(temp)
-                                    .title(i + "")
-                                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.bikesmall)));
-                            break;
-                        case "Skateboard":
-                            mMap.addMarker(new MarkerOptions()
-                                    .position(temp)
-                                    .title(i + "")
-                                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.skateboardsmall)));
-                            break;
-                        case "Surfboard":
-                            mMap.addMarker(new MarkerOptions()
-                                    .position(temp)
-                                    .title(i + "")
-                                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.wavessmall)));
-                            break;
-                        case "Snowboard":
-                            mMap.addMarker(new MarkerOptions()
-                                    .position(temp)
-                                    .title(i + "")
-                                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.snowsmall)));
-                            break;
-                        case "Skis":
-                            mMap.addMarker(new MarkerOptions()
-                                    .position(temp)
-                                    .title(i + "")
-                                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.skismall)));
-                            break;
-                        case "Rollerblade":
-                            mMap.addMarker(new MarkerOptions()
-                                    .position(temp)
-                                    .title(i + "")
-                                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.rollerskatessmall)));
-                            break;
-                        case "Tent":
-                            mMap.addMarker(new MarkerOptions()
-                                    .position(temp)
-                                    .title(i + "")
-                                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.tentsmall)));
-                            break;
-
+                    if (Math.sqrt(Math.pow(Math.abs(currentLat - tempLat), 2) +
+                            Math.pow(Math.abs(currentLong - tempLong), 2)) <= rad) {
+                        listingswithinrad.add(
+                                new PatListing(
+                                        obj.getInt("lid"),
+                                        obj.getString("title"),
+                                        obj.getString("price"),
+                                        obj.getDouble("latitude"),
+                                        obj.getDouble("longitude"),
+                                        obj.getString("url"),
+                                        obj.getString("category")));
                     }
                 }
+            }
+            catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            for (int i = 0; i < listings.size(); i++) {
+                LatLng temp = new LatLng(listingswithinrad.get(i).getLatitude(), listingswithinrad.get(i).getLongitude());
+
+                switch (listingswithinrad.get(i).getCategory()) {
+                    case "Bike":
+                        mMap.addMarker(new MarkerOptions()
+                                .position(temp)
+                                .title(i + "")
+                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.bikesmall)));
+                        break;
+                    case "Skateboard":
+                        mMap.addMarker(new MarkerOptions()
+                                .position(temp)
+                                .title(i + "")
+                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.skateboardsmall)));
+                        break;
+                    case "Surfboard":
+                        mMap.addMarker(new MarkerOptions()
+                                .position(temp)
+                                .title(i + "")
+                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.wavessmall)));
+                        break;
+                    case "Snowboard":
+                        mMap.addMarker(new MarkerOptions()
+                                .position(temp)
+                                .title(i + "")
+                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.snowsmall)));
+                        break;
+                    case "Skis":
+                        mMap.addMarker(new MarkerOptions()
+                                .position(temp)
+                                .title(i + "")
+                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.skismall)));
+                        break;
+                    case "Rollerblade":
+                        mMap.addMarker(new MarkerOptions()
+                                .position(temp)
+                                .title(i + "")
+                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.rollerskatessmall)));
+                        break;
+                    case "Tent":
+                        mMap.addMarker(new MarkerOptions()
+                                .position(temp)
+                                .title(i + "")
+                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.tentsmall)));
+                        break;
+
+                }
+            }
+
+            mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+
+                @Override
+                public boolean onMarkerClick(Marker arg0) {
+                    Listing l = listings.get(Integer.parseInt(arg0.getTitle()));
+                    Bitmap bmp = null;
+                    String filename = l.getPicture();
+                    if (filename != null) {
+                        try {
+                            FileInputStream is = _this.openFileInput(filename);
+                            Log.v("file size is: ", "" + is.getChannel().size());
+                            bmp = BitmapFactory.decodeStream(is);
+                            is.close();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        ImageView iv = null;
+                        iv = ((ImageView) findViewById(R.id.photo));//.setImageBitmap(bm);
+                        iv.setImageBitmap(bmp);
+                        iv.setScaleType(ImageView.ScaleType.FIT_XY);
+                    } else {
+                        ImageView iv = null;
+                        iv = ((ImageView) findViewById(R.id.photo));//.setImageBitmap(bm);
+                        Bitmap bm = BitmapFactory.decodeResource(getResources(), R.drawable.solid_gray);
+                        iv.setImageBitmap(bm);
+                        iv.setScaleType(ImageView.ScaleType.FIT_XY);
+                    }
+
+                    //update textViews
+                    TextView titleText = (TextView) findViewById(R.id.titleText);
+                    titleText.setText("Title: " + l.getTitle());
+                    TextView nameText = (TextView) findViewById(R.id.nameText);
+                    nameText.setText("Name: " + l.getName());
+                    TextView phoneText = (TextView) findViewById(R.id.phoneText);
+                    phoneText.setText("Phone: " + l.getPhone());
+                    TextView priceText = (TextView) findViewById(R.id.priceText);
+                    priceText.setText("Price: $" + l.getPrice());
+
+
+                    return true;
+                }
+
+            });
+
+//
+//
+//
+//            for (int i = 0; i < listings.size(); i++) {
+//
+//
+//                LatLng temp = new LatLng(listings.get(i).getLocation().getLatitude(), listings.get(i).getLocation().getLongitude());
+//                double currentLat = loc.getLatitude();
+//                double currentLong = loc.getLongitude();
+//                double tempLat = temp.latitude;
+//                double tempLong = temp.longitude;
+//
+//                double distance = Math.sqrt(Math.pow(Math.abs(currentLat - tempLat), 2) +
+//                        Math.pow(Math.abs(currentLong - tempLong), 2));
+//
+//                //double distance =
+//
+//                if (distance <= rad) {
+//
+//                    switch (listings.get(i).getCategory()) {
+//                        case "Bike":
+//                            mMap.addMarker(new MarkerOptions()
+//                                    .position(temp)
+//                                    .title(i + "")
+//                                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.bikesmall)));
+//                            break;
+//                        case "Skateboard":
+//                            mMap.addMarker(new MarkerOptions()
+//                                    .position(temp)
+//                                    .title(i + "")
+//                                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.skateboardsmall)));
+//                            break;
+//                        case "Surfboard":
+//                            mMap.addMarker(new MarkerOptions()
+//                                    .position(temp)
+//                                    .title(i + "")
+//                                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.wavessmall)));
+//                            break;
+//                        case "Snowboard":
+//                            mMap.addMarker(new MarkerOptions()
+//                                    .position(temp)
+//                                    .title(i + "")
+//                                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.snowsmall)));
+//                            break;
+//                        case "Skis":
+//                            mMap.addMarker(new MarkerOptions()
+//                                    .position(temp)
+//                                    .title(i + "")
+//                                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.skismall)));
+//                            break;
+//                        case "Rollerblade":
+//                            mMap.addMarker(new MarkerOptions()
+//                                    .position(temp)
+//                                    .title(i + "")
+//                                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.rollerskatessmall)));
+//                            break;
+//                        case "Tent":
+//                            mMap.addMarker(new MarkerOptions()
+//                                    .position(temp)
+//                                    .title(i + "")
+//                                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.tentsmall)));
+//                            break;
+//
+//                    }
+//                }
                 /*mMap.addMarker(new MarkerOptions()
                         .position(temp)
                         .title(i + "")
