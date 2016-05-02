@@ -28,10 +28,10 @@ public class UserFunctions {
 //    private static String forpassURL = "http://cs.unc.edu/~pl/590proj/index.php";
 //    private static String chgpassURL = "http://cs.unc.edu/~pl/590proj/index.php";
 
-    private static String loginURL = "http://api.learn2crack.com/android/loginapi/index.php";
-    private static String registerURL = "http://api.learn2crack.com/android/loginapi/index.php";
-    private static String forpassURL = "http://api.learn2crack.com/android/loginapi/index.php";
-    private static String chgpassURL = "http://api.learn2crack.com/android/loginapi/index.php";
+    private static String loginURL = "http://13lobsters.com/helpr/";
+    private static String registerURL = "http://13lobsters.com/helpr/";
+    private static String forpassURL = "http://13lobsters.com/helpr/";
+    private static String chgpassURL = "http://13lobsters.com/helpr/";
 
     private static String login_tag = "login";
     private static String register_tag = "register";
