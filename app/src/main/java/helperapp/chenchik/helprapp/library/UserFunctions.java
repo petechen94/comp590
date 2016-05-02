@@ -37,7 +37,7 @@ public class UserFunctions {
     private static String register_tag = "register";
     private static String forpass_tag = "forpass";
     private static String chgpass_tag = "chgpass";
-
+    private static String new_listing = "newlisting";
 
     // constructor
     public UserFunctions(){
