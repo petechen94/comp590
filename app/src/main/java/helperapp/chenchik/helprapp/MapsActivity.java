@@ -1,5 +1,6 @@
 package helperapp.chenchik.helprapp;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -8,6 +9,9 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.media.MediaPlayer;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
@@ -31,11 +35,21 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.entity.BufferedHttpEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -51,18 +65,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private GoogleApiClient c = null;
     Location loc;
     Marker marker;
-    double oldWellLeftLong=-79.051586;
-    double oldWellRightLong=-79.050876;
-    double oldWellTopLat=35.912162;
-    double oldWellBottomLat=35.911765;
-    double polkPlaceLeftLong=-79.0509837;
-    double polkPlaceRightLong=-79.049482;
-    double polkPlaceTopLat=35.91119;
-    double polkPlaceBottomLat=35.909556;
-    double brooksLeftLong=-79.053613;
-    double brooksRightLong=-79.052819;
-    double brooksTopLat=35.910347;
-    double brooksBottomLat=35.909469;
+    double oldWellLeftLong = -79.051586;
+    double oldWellRightLong = -79.050876;
+    double oldWellTopLat = 35.912162;
+    double oldWellBottomLat = 35.911765;
+    double polkPlaceLeftLong = -79.0509837;
+    double polkPlaceRightLong = -79.049482;
+    double polkPlaceTopLat = 35.91119;
+    double polkPlaceBottomLat = 35.909556;
+    double brooksLeftLong = -79.053613;
+    double brooksRightLong = -79.052819;
+    double brooksTopLat = 35.910347;
+    double brooksBottomLat = 35.909469;
     LatLng brooks = new LatLng(35.909792, -79.053103);
     LatLng polkPlace = new LatLng(35.910776, -79.050558);
     LatLng oldWell = new LatLng(35.912382, -79.051207);
@@ -73,6 +87,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     ArrayList<Listing> listings = new ArrayList<Listing>();
     ArrayList<PatListing> listingswithinrad = new ArrayList<>();
     Context _this;
+    double rad;
 
     private static final int MY_PERMISSIONS_ACCESS_FINE_LOCATION = 1;
 
@@ -89,7 +104,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         Bundle extras = getIntent().getExtras();
 
-        if(extras != null){
+        if (extras != null) {
             String c = extras.getString("category");
             String t = extras.getString("title");
             String n = extras.getString("name");
@@ -97,12 +112,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             String pr = extras.getString("price");
             Location l = extras.getParcelable("location");
             String bmp = extras.getString("photo");
-            Listing listing = new Listing(c, t, n, p, pr, l,bmp);
-            if(!listingExist(listing)){
+            Listing listing = new Listing(c, t, n, p, pr, l, bmp);
+            if (!listingExist(listing)) {
                 listings.add(listing);
             }
-            for(int i = 0; i < listings.size(); i++){
-                Log.v("listing", i+" is : " + listings.get(i).getName());
+            for (int i = 0; i < listings.size(); i++) {
+                Log.v("listing", i + " is : " + listings.get(i).getName());
             }
         }
         Location tempLoc = new Location("dummyLocation");
@@ -129,14 +144,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        LatLng currentLatLng = new LatLng(35.909792, -79.053103);;
-        if(loc != null) {
+        LatLng currentLatLng = new LatLng(35.909792, -79.053103);
+        ;
+        if (loc != null) {
             currentLatLng = new LatLng(loc.getLatitude(), loc.getLongitude());
             Log.v("CLASS GPS", loc.getLatitude() + ", " + loc.getLongitude());
         }
         try {
             mMap.setMyLocationEnabled(true);
-        }catch(SecurityException ex){
+        } catch (SecurityException ex) {
             ex.printStackTrace();
         }
     }
@@ -150,8 +166,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             mLocationRequest.setFastestInterval(500);
             mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
             LocationServices.FusedLocationApi.requestLocationUpdates(c, mLocationRequest, this);
-        }
-        catch (SecurityException ex) {
+        } catch (SecurityException ex) {
             ex.printStackTrace();
         }
     }
@@ -169,17 +184,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     protected void onStart() {
         c.connect();
-        if(mp != null) {
+        if (mp != null) {
 
             mp.start();
             mp.seekTo(myLength);
         }
         super.onStart();
     }
+
     @Override
     protected void onStop() {
         c.disconnect();
-        if(mp != null) {
+        if (mp != null) {
             mp.pause();
             myLength = mp.getCurrentPosition();
         }
@@ -189,7 +205,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     protected void onPause() {
         c.disconnect();
-        if(mp != null) {
+        if (mp != null) {
             mp.pause();
             myLength = mp.getCurrentPosition();
         }
@@ -199,12 +215,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onLocationChanged(Location location) {
         Log.v("CLASS GPS", location.getLatitude() + ", " + location.getLongitude());
-        for(int i = 0; i < listings.size(); i++){
-            Log.v("listing", i+" is : " + listings.get(i).getName());
+        for (int i = 0; i < listings.size(); i++) {
+            Log.v("listing", i + " is : " + listings.get(i).getName());
         }
         loc = location;
         //this if statement for not constantly animating camera to new position
-        if(!foundOnce){
+        if (!foundOnce) {
             LatLng tmpLL = new LatLng(loc.getLatitude(), loc.getLongitude());
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(tmpLL, 17.0f));
             foundOnce = true;
@@ -215,36 +231,36 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             List<Address> la = g.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
 
             //Log.v("Address", la.get(0).toString());
-            for(int i = 0; i < listings.size(); i++){
-            //    Log.v("listing Title", i+" is : " + listings.get(i).getTitle());
-            //    Log.v("listing Name", i+" is : " + listings.get(i).getName());
-            //    Log.v("listing Phone", i+" is : " + listings.get(i).getPhone());
-            //    Log.v("listing Price", i+" is : " + listings.get(i).getPrice());
-            //    Log.v("listing filename", i+" is: "+ listings.get(i).getPicture());
+            for (int i = 0; i < listings.size(); i++) {
+                //    Log.v("listing Title", i+" is : " + listings.get(i).getTitle());
+                //    Log.v("listing Name", i+" is : " + listings.get(i).getName());
+                //    Log.v("listing Phone", i+" is : " + listings.get(i).getPhone());
+                //    Log.v("listing Price", i+" is : " + listings.get(i).getPrice());
+                //    Log.v("listing filename", i+" is: "+ listings.get(i).getPicture());
             }
 
-        }catch (Exception ex) {
+        } catch (Exception ex) {
 
         }
 
     }
 
     @Override
-    public void onPrepared(MediaPlayer mp){
-        if(mp != null) {
+    public void onPrepared(MediaPlayer mp) {
+        if (mp != null) {
             mp.start();
         }
     }
 
-    public void makeNewListing(View v){
+    public void makeNewListing(View v) {
         Intent x = new Intent(this, NewListingActivity.class);
         x.putExtra("currentLocation", loc);
         startActivity(x);
     }
 
-    public boolean listingExist(Listing l){
-        for(int i = 0; i < listings.size(); i++) {
-            if(listings.get(i).getTitle().equals(l.getName())){
+    public boolean listingExist(Listing l) {
+        for (int i = 0; i < listings.size(); i++) {
+            if (listings.get(i).getTitle().equals(l.getName())) {
                 return true;
             }
         }
@@ -252,7 +268,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     }
 
-    public void showPop(String s){
+    public void showPop(String s) {
         //context is a the window object of the application, we want to put something on top of the current window object
         Context context = getApplicationContext();
         int duration = Toast.LENGTH_SHORT;
@@ -262,13 +278,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     public void showListings(View v) throws JSONException {
-        mMap.clear();
+//        mMap.clear();
         //double rad = Integer.parseInt(((EditText) findViewById(R.id.listingRadius)).getText().toString());
-        double rad;
         String radString = ((EditText) findViewById(R.id.listingRadius)).getText().toString();
         //Log.v("rad is ",rad+"");
-        
-        if(!radString.equals("")) {
+
+        if (!radString.equals("")) {
             //String
             rad = Integer.parseInt(radString);
 
@@ -277,41 +292,153 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 //            HashMap<String,String> listing = new HashMap<String, String>();
 //            listing = db.getListingDetails();
 
+            NetAsync(v);
+        } else {
+            showPop("please set a radius.");
+        }
+    }
+
+
+    private class NetCheck extends AsyncTask<String, String, Boolean> {
+
+        private ProgressDialog nDialog;
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            nDialog = new ProgressDialog(MapsActivity.this);
+            nDialog.setMessage("Loading..");
+            nDialog.setTitle("Checking Network");
+            nDialog.setIndeterminate(false);
+            nDialog.setCancelable(true);
+            nDialog.show();
+        }
+
+        @Override
+        protected Boolean doInBackground(String... args) {
+
+
+/**
+ * Gets current device state and checks for working internet connection by trying Google.
+ **/
+            ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo netInfo = cm.getActiveNetworkInfo();
+            if (netInfo != null && netInfo.isConnected()) {
+                try {
+                    URL url = new URL("http://www.google.com");
+                    HttpURLConnection urlc = (HttpURLConnection) url.openConnection();
+                    urlc.setConnectTimeout(3000);
+                    urlc.connect();
+                    if (urlc.getResponseCode() == 200) {
+                        return true;
+                    }
+                } catch (MalformedURLException e1) {
+                    // TODO Auto-generated catch block
+                    e1.printStackTrace();
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
+            return false;
+
+        }
+
+        @Override
+        protected void onPostExecute(Boolean th) {
+
+            if (th == true) {
+                nDialog.dismiss();
+                new ProcessRegister().execute();
+            } else {
+                nDialog.dismiss();
+                Log.v("", "Error in Network Connection");
+            }
+        }
+    }
+
+
+    private class ProcessRegister extends AsyncTask<String, String, JSONObject> {
+
+        /**
+         * Defining Process dialog
+         **/
+        private ProgressDialog pDialog;
+
+        String email, password, fname, lname, uname;
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+//            inputUsername = (EditText) findViewById(R.id.uname);
+//            inputPassword = (EditText) findViewById(R.id.pword);
+//            fname = inputFirstName.getText().toString();
+//            lname = inputLastName.getText().toString();
+//            email = inputEmail.getText().toString();
+//            uname= inputUsername.getText().toString();
+//            password = inputPassword.getText().toString();
+            pDialog = new ProgressDialog(MapsActivity.this);
+            pDialog.setTitle("Contacting Servers");
+            pDialog.setMessage("Registering ...");
+            pDialog.setIndeterminate(false);
+            pDialog.setCancelable(true);
+            pDialog.show();
+        }
+
+        @Override
+        protected JSONObject doInBackground(String... args) {
+
             UserFunctions userFunction = new UserFunctions();
             JSONObject json = userFunction.getListings();
+
+            return json;
+        }
+
+        @Override
+        protected void onPostExecute(JSONObject json) {
 
             //JSONArray c = getJsonArray(json);
             double currentLat = loc.getLatitude();
             double currentLong = loc.getLongitude();
 
+            listingswithinrad.clear();
+
             try {
                 JSONArray c = json.getJSONArray("listings");
-                for (int i = 0 ; i < c.length(); i++) {
+                Log.v("c", "" + c);
+                for (int i = 0; i < c.length(); i++) {
                     JSONObject obj = c.getJSONObject(i);
-                    double tempLat = obj.getDouble("latitude");
-                    double tempLong = obj.getDouble("longitude");
+                    Log.v("obj", "" + obj);
+                    String tempLat = obj.getString("latitude");
+                    String tempLong = obj.getString("longitude");
+                    Log.v("tempLat", "" + tempLat);
+                    double diff = Math.sqrt(Math.pow(Math.abs(currentLat - Double.parseDouble(tempLat)), 2) +
+                            Math.pow(Math.abs(currentLong - Double.parseDouble(tempLong)), 2));
+                    Log.v("", "" + diff + ", rad: "+ rad);
+                    Log.v("", "" + (diff <= rad));
 
-                    if (Math.sqrt(Math.pow(Math.abs(currentLat - tempLat), 2) +
-                            Math.pow(Math.abs(currentLong - tempLong), 2)) <= rad) {
+                    if (diff <= rad) {
+                        Log.v("within range", "woohoo");
                         listingswithinrad.add(
                                 new PatListing(
-                                        obj.getInt("lid"),
+                                        obj.getString("lid"),
                                         obj.getString("title"),
                                         obj.getString("price"),
-                                        obj.getDouble("latitude"),
-                                        obj.getDouble("longitude"),
+                                        obj.getString("latitude"),
+                                        obj.getString("longitude"),
                                         obj.getString("url"),
                                         obj.getString("category")));
                     }
                 }
-            }
-            catch (JSONException e) {
+            } catch (JSONException e) {
                 e.printStackTrace();
             }
 
-            for (int i = 0; i < listings.size(); i++) {
-                LatLng temp = new LatLng(listingswithinrad.get(i).getLatitude(), listingswithinrad.get(i).getLongitude());
-
+            Log.v("listingsinrad size", "" + listingswithinrad.size());
+            for (int i = 0; i < listingswithinrad.size(); i++) {
+                LatLng temp = new LatLng(Double.parseDouble(listingswithinrad.get(i).getLatitude()), Double.parseDouble(listingswithinrad.get(i).getLongitude()));
+                Log.v("Latlng", "" + temp);
+                Log.v("cat", "" + listingswithinrad.get(i).getCategory());
                 switch (listingswithinrad.get(i).getCategory()) {
                     case "Bike":
                         mMap.addMarker(new MarkerOptions()
@@ -357,182 +484,77 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         break;
 
                 }
-            }
 
-            mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-
-                @Override
-                public boolean onMarkerClick(Marker arg0) {
-                    Listing l = listings.get(Integer.parseInt(arg0.getTitle()));
-                    Bitmap bmp = null;
-                    String filename = l.getPicture();
-                    if (filename != null) {
-                        try {
-                            FileInputStream is = _this.openFileInput(filename);
-                            Log.v("file size is: ", "" + is.getChannel().size());
-                            bmp = BitmapFactory.decodeStream(is);
-                            is.close();
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                        ImageView iv = null;
-                        iv = ((ImageView) findViewById(R.id.photo));//.setImageBitmap(bm);
-                        iv.setImageBitmap(bmp);
-                        iv.setScaleType(ImageView.ScaleType.FIT_XY);
-                    } else {
-                        ImageView iv = null;
-                        iv = ((ImageView) findViewById(R.id.photo));//.setImageBitmap(bm);
-                        Bitmap bm = BitmapFactory.decodeResource(getResources(), R.drawable.solid_gray);
-                        iv.setImageBitmap(bm);
-                        iv.setScaleType(ImageView.ScaleType.FIT_XY);
-                    }
-
-                    //update textViews
-                    TextView titleText = (TextView) findViewById(R.id.titleText);
-                    titleText.setText("Title: " + l.getTitle());
-                    TextView nameText = (TextView) findViewById(R.id.nameText);
-                    nameText.setText("Name: " + l.getName());
-                    TextView phoneText = (TextView) findViewById(R.id.phoneText);
-                    phoneText.setText("Phone: " + l.getPhone());
-                    TextView priceText = (TextView) findViewById(R.id.priceText);
-                    priceText.setText("Price: $" + l.getPrice());
-
-
-                    return true;
-                }
-
-            });
-
-//
-//
-//
-//            for (int i = 0; i < listings.size(); i++) {
-//
-//
-//                LatLng temp = new LatLng(listings.get(i).getLocation().getLatitude(), listings.get(i).getLocation().getLongitude());
-//                double currentLat = loc.getLatitude();
-//                double currentLong = loc.getLongitude();
-//                double tempLat = temp.latitude;
-//                double tempLong = temp.longitude;
-//
-//                double distance = Math.sqrt(Math.pow(Math.abs(currentLat - tempLat), 2) +
-//                        Math.pow(Math.abs(currentLong - tempLong), 2));
-//
-//                //double distance =
-//
-//                if (distance <= rad) {
-//
-//                    switch (listings.get(i).getCategory()) {
-//                        case "Bike":
-//                            mMap.addMarker(new MarkerOptions()
-//                                    .position(temp)
-//                                    .title(i + "")
-//                                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.bikesmall)));
-//                            break;
-//                        case "Skateboard":
-//                            mMap.addMarker(new MarkerOptions()
-//                                    .position(temp)
-//                                    .title(i + "")
-//                                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.skateboardsmall)));
-//                            break;
-//                        case "Surfboard":
-//                            mMap.addMarker(new MarkerOptions()
-//                                    .position(temp)
-//                                    .title(i + "")
-//                                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.wavessmall)));
-//                            break;
-//                        case "Snowboard":
-//                            mMap.addMarker(new MarkerOptions()
-//                                    .position(temp)
-//                                    .title(i + "")
-//                                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.snowsmall)));
-//                            break;
-//                        case "Skis":
-//                            mMap.addMarker(new MarkerOptions()
-//                                    .position(temp)
-//                                    .title(i + "")
-//                                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.skismall)));
-//                            break;
-//                        case "Rollerblade":
-//                            mMap.addMarker(new MarkerOptions()
-//                                    .position(temp)
-//                                    .title(i + "")
-//                                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.rollerskatessmall)));
-//                            break;
-//                        case "Tent":
-//                            mMap.addMarker(new MarkerOptions()
-//                                    .position(temp)
-//                                    .title(i + "")
-//                                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.tentsmall)));
-//                            break;
-//
-//                    }
-//                }
-                /*mMap.addMarker(new MarkerOptions()
-                        .position(temp)
-                        .title(i + "")
-                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.bike)));*/
                 mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-
                     @Override
                     public boolean onMarkerClick(Marker arg0) {
-                        Listing l = listings.get(Integer.parseInt(arg0.getTitle()));
-                        Bitmap bmp = null;
-                        String filename = l.getPicture();
-                        if (filename != null) {
-                            try {
-                                FileInputStream is = _this.openFileInput(filename);
-                                Log.v("file size is: ", "" + is.getChannel().size());
-                                bmp = BitmapFactory.decodeStream(is);
-                                is.close();
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                            ImageView iv = null;
-                            iv = ((ImageView) findViewById(R.id.photo));//.setImageBitmap(bm);
-                            iv.setImageBitmap(bmp);
-                            iv.setScaleType(ImageView.ScaleType.FIT_XY);
-                        } else {
-                            ImageView iv = null;
-                            iv = ((ImageView) findViewById(R.id.photo));//.setImageBitmap(bm);
-                            Bitmap bm = BitmapFactory.decodeResource(getResources(), R.drawable.solid_gray);
-                            iv.setImageBitmap(bm);
-                            iv.setScaleType(ImageView.ScaleType.FIT_XY);
+//                        Listing l = listings.get(Integer.parseInt(arg0.getTitle()));
+                        PatListing l = listingswithinrad.get(Integer.parseInt(arg0.getTitle()));
+                        String imgurl = l.getURL();
+                        Log.v("URL", "" + imgurl);
+                        try {
+                            URL theimgurl = new URL(imgurl);
+                            //try this url = "http://0.tqn.com/d/webclipart/1/0/5/l/4/floral-icon-5.jpg"
+                            HttpGet httpRequest = null;
+
+                            httpRequest = new HttpGet(theimgurl.toURI());
+
+                            HttpClient httpclient = new DefaultHttpClient();
+                            HttpResponse response = (HttpResponse) httpclient
+                                    .execute(httpRequest);
+
+                            HttpEntity entity = response.getEntity();
+                            BufferedHttpEntity b_entity = new BufferedHttpEntity(entity);
+                            InputStream input = b_entity.getContent();
+
+                            Bitmap bitmap = BitmapFactory.decodeStream(input);
+
+                            ImageView iv = ((ImageView) findViewById(R.id.photo));//.setImageBitmap(bm);
+                            iv.setImageBitmap(bitmap);
+
+                        } catch (Exception ex) {
+
                         }
 
+                        Log.v("Finished finding URL", "");
                         //update textViews
                         TextView titleText = (TextView) findViewById(R.id.titleText);
                         titleText.setText("Title: " + l.getTitle());
-                        TextView nameText = (TextView) findViewById(R.id.nameText);
-                        nameText.setText("Name: " + l.getName());
-                        TextView phoneText = (TextView) findViewById(R.id.phoneText);
-                        phoneText.setText("Phone: " + l.getPhone());
+//                        TextView nameText = (TextView) findViewById(R.id.nameText);
+//                        nameText.setText("Name: " + l.getName());
+//                        TextView phoneText = (TextView) findViewById(R.id.phoneText);
+//                        phoneText.setText("Phone: " + l.getPhone());
                         TextView priceText = (TextView) findViewById(R.id.priceText);
                         priceText.setText("Price: $" + l.getPrice());
 
 
                         return true;
-                    }
 
+                    }
                 });
             }
-        }
-        else{
-            showPop("please set a radius.");
+            Log.v("PR onpost execute", "done");
+
+            pDialog.dismiss();
         }
     }
+    public void NetAsync(View view) {
+        new NetCheck().execute();
+    }
 
-    public void updateText(TextView t, String text){
+    public void updateText(TextView t, String text) {
         t.setText(text);
     }
 
 
-
-    public void createRequest(View v){
+    public void createRequest(View v) {
         Intent x = new Intent(this, NewRequestActivity.class);
         x.putExtra("currentLocation", loc);
         startActivity(x);
     }
-
 }
+
+
+
+
 
