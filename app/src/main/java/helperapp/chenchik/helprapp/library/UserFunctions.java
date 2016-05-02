@@ -111,13 +111,19 @@ public class UserFunctions {
         return json;
     }
 
-    public JSONObject newListing(String title, String price){
+    public JSONObject newListing(String title, String price, String latitude, String longitude, String imgURL, String category){
         // Building Parameters
         Log.v("I'm here in", "newListing");
         List<NameValuePair> params = new ArrayList<NameValuePair>();
         params.add(new BasicNameValuePair("tag", new_listing_tag));
         params.add(new BasicNameValuePair("title", title));
         params.add(new BasicNameValuePair("price", price));
+        params.add(new BasicNameValuePair("latitude", latitude));
+        params.add(new BasicNameValuePair("longitude", longitude));
+        params.add(new BasicNameValuePair("url", title));
+        params.add(new BasicNameValuePair("category", category));
+        Log.v("newListing params", "" + params);
+
         JSONObject json = jsonParser.getJSONFromUrl(apiURL,params);
         Log.v("newListing JSON obj", "" + json);
 
@@ -128,7 +134,7 @@ public class UserFunctions {
         // Building Parameters
         Log.v("I'm here in", "getListings");
         List<NameValuePair> params = new ArrayList<NameValuePair>();
-        params.add(new BasicNameValuePair("tag", new_listing_tag));
+        params.add(new BasicNameValuePair("tag", get_listings_tag));
         JSONObject json = jsonParser.getJSONFromUrl(apiURL,params);
         Log.v("getListings JSON obj", "" + json);
 

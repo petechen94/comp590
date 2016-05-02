@@ -43,6 +43,7 @@ public class NewListingActivity extends AppCompatActivity{
     double globalLong;
     static final CharSequence categories[] = new CharSequence[] {"Bike", "Skateboard", "Surfboard" , "Snowboard", "Skis", "Rollerblade", "Tent"};
     String chosenCategory = null;
+    String imgURL = "http://0.tqn.com/d/webclipart/1/0/5/l/4/floral-icon-5.jpg";
     Bitmap globalPicture = null;
     HashMap<String,String> user = new HashMap<String, String>();
 
@@ -69,8 +70,10 @@ public class NewListingActivity extends AppCompatActivity{
         Bundle extras = getIntent().getExtras();
         if(extras != null){
             globalLoc = extras.getParcelable("currentLocation");
-            globalLat = globalLoc.getLatitude();
-            globalLong = globalLoc.getLongitude();
+
+            // need to round or could have a buffer overflow as double is converted to String for sending via JSON
+            globalLat = Math.round(globalLoc.getLatitude() * 100000000000.0)/100000000000.0;
+            globalLong = Math.round(globalLoc.getLongitude()* 100000000000.0)/100000000000.0;
         }
 
         DatabaseHandler db = new DatabaseHandler(getApplicationContext());
@@ -347,7 +350,9 @@ public class NewListingActivity extends AppCompatActivity{
         protected JSONObject doInBackground(String... args) {
             UserFunctions userFunction = new UserFunctions();
             Log.v("titleText: ", titleText + ", priceText: " + priceText);
-            JSONObject json = userFunction.newListing(titleText, priceText);
+            Log.v("", "Lat: " + String.valueOf(globalLat) + ", Long: " + String.valueOf(globalLong) + "Imgurl: " + imgURL + ", Cat: " + chosenCategory);
+
+            JSONObject json = userFunction.newListing(titleText, priceText, String.valueOf(globalLat), String.valueOf(globalLong), imgURL, chosenCategory);
 
             return json;
 
@@ -381,9 +386,9 @@ public class NewListingActivity extends AppCompatActivity{
                          * Removes all the previous data in the SQlite database
                          **/
 
-                        UserFunctions logout = new UserFunctions();
-                        logout.logoutUser(getApplicationContext());
-                        db.addListing(json_listing.getString(KEY_TITLE), json_listing.getString(KEY_PRICE));
+//                        UserFunctions logout = new UserFunctions();
+//                        logout.logoutUser(getApplicationContext());
+//                        db.addListing(json_listing.getString(KEY_TITLE), json_listing.getString(KEY_PRICE));
                         /**
                          * Stores registered data in SQlite Database
                          * Launch Registered screen
