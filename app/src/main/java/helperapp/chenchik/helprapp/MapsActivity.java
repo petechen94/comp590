@@ -490,30 +490,50 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     public boolean onMarkerClick(Marker arg0) {
 //                        Listing l = listings.get(Integer.parseInt(arg0.getTitle()));
                         PatListing l = listingswithinrad.get(Integer.parseInt(arg0.getTitle()));
+                        Bitmap bmp = null;
                         String imgurl = l.getURL();
+                        int loader = R.drawable.solid_gray;
+                        String fileName = "http://13lobsters.com/helpr/images/ygggg-1462214213203.jpg";
+                        ImageLoader imgLoader;
+                        imgLoader = new ImageLoader(getApplicationContext());
                         Log.v("URL", "" + imgurl);
-                        try {
-                            URL theimgurl = new URL(imgurl);
-                            //try this url = "http://0.tqn.com/d/webclipart/1/0/5/l/4/floral-icon-5.jpg"
-                            HttpGet httpRequest = null;
+                        if(fileName != null) {
+                            try {
+                                URL theimgurl = new URL(imgurl);
+                                //try this url = "http://0.tqn.com/d/webclipart/1/0/5/l/4/floral-icon-5.jpg"
+                                HttpGet httpRequest = null;
 
-                            httpRequest = new HttpGet(theimgurl.toURI());
+                                httpRequest = new HttpGet(theimgurl.toURI());
 
-                            HttpClient httpclient = new DefaultHttpClient();
-                            HttpResponse response = (HttpResponse) httpclient
-                                    .execute(httpRequest);
+                                HttpClient httpclient = new DefaultHttpClient();
+                                HttpResponse response = (HttpResponse) httpclient
+                                        .execute(httpRequest);
 
-                            HttpEntity entity = response.getEntity();
-                            BufferedHttpEntity b_entity = new BufferedHttpEntity(entity);
-                            InputStream input = b_entity.getContent();
+                                HttpEntity entity = response.getEntity();
+                                BufferedHttpEntity b_entity = new BufferedHttpEntity(entity);
+                                InputStream input = b_entity.getContent();
 
-                            Bitmap bitmap = BitmapFactory.decodeStream(input);
+                                Bitmap bitmap = BitmapFactory.decodeStream(input);
 
-                            ImageView iv = ((ImageView) findViewById(R.id.photo));//.setImageBitmap(bm);
-                            iv.setImageBitmap(bitmap);
+                                ImageView iv = ((ImageView) findViewById(R.id.photo));//.setImageBitmap(bm);
+                                iv.setImageBitmap(bitmap);
 
-                        } catch (Exception ex) {
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                            ImageView iv = null;
+                            iv = ((ImageView) findViewById(R.id.photo));//.setImageBitmap(bm);
+                            imgLoader.DisplayImage(fileName, loader, iv);
+                            //iv.setImageBitmap(bmp);
 
+                            iv.setScaleType(ImageView.ScaleType.FIT_XY);
+                        }
+                        else{
+                            ImageView iv = null;
+                            iv = ((ImageView) findViewById(R.id.photo));//.setImageBitmap(bm);
+                            Bitmap bm = BitmapFactory.decodeResource(getResources(), R.drawable.solid_gray);
+                            iv.setImageBitmap(bm);
+                            iv.setScaleType(ImageView.ScaleType.FIT_XY);
                         }
 
                         Log.v("Finished finding URL", "");
