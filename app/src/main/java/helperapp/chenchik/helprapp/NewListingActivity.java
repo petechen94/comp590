@@ -391,10 +391,18 @@ public class NewListingActivity extends AppCompatActivity{
             Log.v("titleText: ", titleText + ", priceText: " + priceText);
             Log.v("", "Lat: " + String.valueOf(globalLat) + ", Long: " + String.valueOf(globalLong) + "Imgurl: " + imgURL + ", Cat: " + chosenCategory);
 
+            DatabaseHandler db = new DatabaseHandler(getApplicationContext());
+            HashMap<String,String> user = new HashMap<String, String>();
+            user = db.getUserDetails();
+            String uname = user.get("uname");
+            String uemail = user.get("email");
+            Log.v("db printed out", "" + uname + ", " + uemail);
+
             // placeholders
-            String username ="dchenchik", phone = "9190000000", email = "asdf@asdf.com";
+            //String username ="dchenchik", email = "asdf@asdf.com";
+            String phone = "9190000000";
             Log.v("imgURL", "" + imgURL);
-            JSONObject json = userFunction.newListing(titleText, priceText, String.valueOf(globalLat), String.valueOf(globalLong), imgURL, chosenCategory, username, phone, email);
+            JSONObject json = userFunction.newListing(titleText, priceText, String.valueOf(globalLat), String.valueOf(globalLong), imgURL, chosenCategory, uname, phone, uemail);
 
             return json;
 
