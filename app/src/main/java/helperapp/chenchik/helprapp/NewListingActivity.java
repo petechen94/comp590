@@ -62,6 +62,7 @@ public class NewListingActivity extends AppCompatActivity{
     Bitmap globalPicture = null;
     HashMap<String,String> user = new HashMap<String, String>();
     String globalTitle = "";
+    String time = ""+System.currentTimeMillis();
 
     private Button button;
     private String encoded_string, image_name;
@@ -76,6 +77,7 @@ public class NewListingActivity extends AppCompatActivity{
 
     TextView registerErrorMsg;
     String priceText, titleText;
+    String phone = "";
 
 
 
@@ -124,7 +126,7 @@ public class NewListingActivity extends AppCompatActivity{
     private void getFileUri() {
         //set image name here
         if (globalTitle != null) {
-            image_name = globalTitle + "-" + System.currentTimeMillis() + ".jpg";
+            image_name = globalTitle + "-" + time + ".jpg";
             file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
                     + File.separator + image_name);
             file_uri = Uri.fromFile(file);
@@ -196,6 +198,7 @@ public class NewListingActivity extends AppCompatActivity{
 
         EditText editPhoneNumber = (EditText) findViewById(R.id.editPhoneNumber);
         String phoneNumberText = editPhoneNumber.getText().toString();
+        phone = phoneNumberText;
 
         EditText editPrice = (EditText) findViewById(R.id.editPrice);
         priceText = editPrice.getText().toString();
@@ -400,9 +403,9 @@ public class NewListingActivity extends AppCompatActivity{
 
             // placeholders
             //String username ="dchenchik", email = "asdf@asdf.com";
-            String phone = "9190000000";
+
             Log.v("imgURL", "" + imgURL);
-            JSONObject json = userFunction.newListing(titleText, priceText, String.valueOf(globalLat), String.valueOf(globalLong), imgURL, chosenCategory, uname, phone, uemail);
+            JSONObject json = userFunction.newListing(titleText, priceText, String.valueOf(globalLat), String.valueOf(globalLong), titleText+"-"+time, chosenCategory, uname, phone, uemail);
 
             return json;
 
@@ -492,7 +495,7 @@ public class NewListingActivity extends AppCompatActivity{
 
             bitmap = BitmapFactory.decodeFile(file_uri.getPath());
             ByteArrayOutputStream stream = new ByteArrayOutputStream();
-            globalPicture.compress(Bitmap.CompressFormat.JPEG, 75, stream);
+            globalPicture.compress(Bitmap.CompressFormat.JPEG, 100, stream);
 
             byte[] array = stream.toByteArray();
             encoded_string = Base64.encodeToString(array, 0);

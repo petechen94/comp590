@@ -496,7 +496,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         Bitmap bmp = null;
                         String imgurl = l.getURL();
                         int loader = R.drawable.solid_gray;
-                        String fileName = "http://13lobsters.com/helpr/images/ygggg-1462214213203.jpg";
+                        //String fileName = "http://13lobsters.com/helpr/images/ygggg-1462214213203.jpg";
+                        String fileName = "http://13lobsters.com/helpr/images/" + l.getURL() + ".jpg";
                         ImageLoader imgLoader;
                         imgLoader = new ImageLoader(getApplicationContext());
                         Log.v("URL", "" + imgurl);
@@ -545,6 +546,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         titleText.setText("Title: " + l.getTitle());
                         TextView nameText = (TextView) findViewById(R.id.nameText);
                         nameText.setText("Username: " + l.getUsername());
+                        TextView emailText = (TextView) findViewById(R.id.emailText);
+                        emailText.setText("Email: "+l.getEmail());
                         TextView phoneText = (TextView) findViewById(R.id.phoneText);
                         phoneText.setText("Phone: " + l.getPhone());
                         TextView priceText = (TextView) findViewById(R.id.priceText);

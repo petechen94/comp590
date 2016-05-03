@@ -23,7 +23,8 @@ public class PatListing {
         longitude = lo;
 //        url = u;
         // replace with actual URL
-        url = "http://0.tqn.com/d/webclipart/1/0/5/l/4/floral-icon-5.jpg";
+        //url = t+"-"+la;
+        url = u;
         category = c;
         username = us;
         phone = ph;

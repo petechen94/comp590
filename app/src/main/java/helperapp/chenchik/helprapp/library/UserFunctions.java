@@ -120,7 +120,8 @@ public class UserFunctions {
         params.add(new BasicNameValuePair("price", price));
         params.add(new BasicNameValuePair("latitude", latitude));
         params.add(new BasicNameValuePair("longitude", longitude));
-        params.add(new BasicNameValuePair("url", title));
+        //params.add(new BasicNameValuePair("url", title+"-"+latitude));
+        params.add(new BasicNameValuePair("url", imgURL));
         params.add(new BasicNameValuePair("category", category));
         params.add(new BasicNameValuePair("username", username));
         params.add(new BasicNameValuePair("phone", phone));
