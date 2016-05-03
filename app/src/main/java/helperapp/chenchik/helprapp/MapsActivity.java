@@ -427,7 +427,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                         obj.getString("latitude"),
                                         obj.getString("longitude"),
                                         obj.getString("url"),
-                                        obj.getString("category")));
+                                        obj.getString("category"),
+                                        obj.getString("username"),
+                                        obj.getString("phone"),
+                                        obj.getString("email")));
                     }
                 }
             } catch (JSONException e) {
@@ -540,13 +543,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         //update textViews
                         TextView titleText = (TextView) findViewById(R.id.titleText);
                         titleText.setText("Title: " + l.getTitle());
-//                        TextView nameText = (TextView) findViewById(R.id.nameText);
-//                        nameText.setText("Name: " + l.getName());
-//                        TextView phoneText = (TextView) findViewById(R.id.phoneText);
-//                        phoneText.setText("Phone: " + l.getPhone());
+                        TextView nameText = (TextView) findViewById(R.id.nameText);
+                        nameText.setText("Username: " + l.getUsername());
+                        TextView phoneText = (TextView) findViewById(R.id.phoneText);
+                        phoneText.setText("Phone: " + l.getPhone());
                         TextView priceText = (TextView) findViewById(R.id.priceText);
                         priceText.setText("Price: $" + l.getPrice());
-
 
                         return true;
 
